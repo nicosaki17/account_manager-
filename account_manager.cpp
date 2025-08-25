@@ -1,5 +1,7 @@
 #include <iostream>
 #include <vector>
+#include <limits>
+#include <fstream>
 using namespace std;
 
 struct account{
@@ -8,6 +10,30 @@ struct account{
     string passwrd;
 };
 
+const string FILENAME = "accounts_data.txt";
+
+//GUARDAR EN ARCHIVO
+
+void saveToFile(const vector<account>& accounts){
+    ofstream out(FILENAME);
+    for(auto &acc : accounts){
+        out << acc.user_id <<" " <<acc.user << " " <<acc.passwrd <<"\n";
+    }
+
+}
+
+//CARGAR EN ARCHIVO
+
+void loadFromFile(vector<account>& accounts){
+    ifstream in(FILENAME);
+    if(!in) return; //si el archivo no existe, no se carga nada
+    
+    account acc;
+    while(in >> acc.user_id >>acc.user >>acc.passwrd){
+        accounts.push_back(acc);
+    }
+}
+
 //VER CUENTAS
 void showAcc(const vector<account>& accounts){
     if(accounts.empty()){
@@ -15,11 +41,11 @@ void showAcc(const vector<account>& accounts){
         return;
     }
 
-    cout <<"\n--CUENTAS--\n";
+    cout <<"\n\n--CUENTAS--\n";
     for (size_t i = 0; i < accounts.size(); i++){
-        cout <<i + 1 << "-Nombre cuenta: " <<accounts[i].user_id
-        <<"\nNombre usuario: " <<accounts[i].user
-        <<"\nContrasena: " <<accounts[i].passwrd <<"\n";
+        cout <<i + 1 << "- Nombre cuenta: " <<accounts[i].user_id
+        <<"\n  Nombre usuario: " <<accounts[i].user
+        <<"\n  Contrasena: " <<accounts[i].passwrd <<"\n";
     }
 }
 
@@ -34,6 +60,7 @@ void addAcc(vector<account>& accounts){
     cin >>nueva.passwrd;
 
     accounts.push_back(nueva);
+    saveToFile(accounts);
     cout <<"Cuenta agregada";
 }
 
@@ -54,6 +81,7 @@ void delAcc(vector<account>& accounts){
         return;
     }
     accounts.erase(accounts.begin() + (choose - 1));
+    saveToFile(accounts);
     cout <<"Cuenta eliminada.\n";
 
 }
@@ -61,16 +89,20 @@ void delAcc(vector<account>& accounts){
 //PAUSA
 void pause(){
     cout <<"\nPresiona ENTER para volver al menu.";
+    cin.ignore(numeric_limits<streamsize>::max(), '\n'); //limpiar buffer
     cin.get();
 }
 
+//MAIN
 int main(){
 
     int i =0;
+    int opt;
     vector<account> accounts;
+    loadFromFile(accounts);
     do{
             
-            int opt;
+            
 
              cout <<"\n --ELIGE UNA OPCION--\n\n"
              <<"1- Ver cuentas" <<endl
@@ -100,6 +132,6 @@ int main(){
             }
  
             
-    }while(true);
+    }while(opt !=4);
     return 0;
 }
